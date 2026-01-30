@@ -1,6 +1,6 @@
 #include "Table.h"
 
-Table::Table(const std::string name, const std::vector<Column> columns) : name(name), columns(columns) {
+Table::Table(const std::string& name, const std::vector<Column>& columns) : name(name), columns(columns) {
     for (const auto& col : columns) {
         if (col.indexed) {
             indices[col.name] = Index(col.uniqueIndex);
@@ -55,6 +55,10 @@ std::vector<Column> Table::getColumns() const {
 
 std::vector<Row> Table::getRows() const {
     return rows;
+}
+
+std::string Table::getName() const {
+    return name;
 }
 
 

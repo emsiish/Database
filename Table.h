@@ -12,13 +12,14 @@ class Table {
 
 public:
     Table() {}
-    Table(const std::string name, const std::vector<Column> columns);
+    Table(const std::string& name, const std::vector<Column>& columns);
 
     int getColumnIndex(const std::string& name) const;
     void insertRow(const Row& row);
     void removeRow(std::size_t rowIdx);
     std::vector<Column> getColumns() const;
     std::vector<Row> getRows() const;
+    std::string getName() const;
 };
 
 #endif //PROEKT_TABLE_H

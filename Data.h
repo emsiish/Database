@@ -1,11 +1,12 @@
 #ifndef PROEKT_DATA_H
 #define PROEKT_DATA_H
 #include <string>
+#include <utility>
 #include <vector>
 
 enum class DataType { INT, STRING, DATE };
 
-std::string dataTypeToString(DataType type) {
+inline std::string dataTypeToString(const DataType type) {
     switch(type) {
         case DataType::INT: return "Int";
         case DataType::STRING: return "String";
@@ -20,9 +21,11 @@ struct Value {
     double intValue;
     std::string strValue;
 
+    static constexpr double epsilon = 1e-5;
+
     Value() : type(DataType::INT), intValue(0) {}
-    Value(const int value) : type(DataType::INT), intValue(value) {}
-    Value(const std::string& value, DataType type = DataType::STRING) : type(type), intValue(0), strValue(value) {}
+    Value(const double value) : type(DataType::INT), intValue(value) {}
+    Value(std::string value, const DataType type = DataType::STRING) : type(type), intValue(0), strValue(std::move(value)) {}
 
     std::string toString() const {
         if (type == DataType::INT) return std::to_string(intValue);
@@ -31,7 +34,7 @@ struct Value {
 
     bool operator==(const Value& other) const {
         if (type != other.type) return false;
-        return (type == DataType::INT) ? (intValue == other.intValue) : (strValue == other.strValue);
+        return (type == DataType::INT) ? std::abs(intValue - other.intValue) < epsilon : (strValue == other.strValue);
     }
 
     bool operator<(const Value& other) const {
@@ -55,14 +58,14 @@ struct Column {
     bool uniqueIndex;
 
     Column() : type(DataType::INT), hasDefault(false), autoIncrement(false), indexed(false), uniqueIndex(false) {}
-    Column(const std::string& name, DataType type, bool indexed = false, bool uniqueIndex = false)
-        : name(name), type(type), hasDefault(false), autoIncrement(false), indexed(indexed), uniqueIndex(uniqueIndex) {}
+    Column(std::string  name, const DataType type, const bool indexed = false, const bool uniqueIndex = false)
+        : name(std::move(name)), type(type), hasDefault(false), autoIncrement(false), indexed(indexed), uniqueIndex(uniqueIndex) {}
 };
 
 struct Row {
     std::vector<Value> values;
 
-    Row() {}
+    Row() = default;
     Row(const std::vector<Value>& values) : values(values) {}
 };
 

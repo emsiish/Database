@@ -1,7 +1,7 @@
 #ifndef PROEKT_INDEX_H
 #define PROEKT_INDEX_H
 #include <map>
-
+#include <stdexcept>
 #include "Data.h"
 
 class Index {
@@ -10,7 +10,7 @@ class Index {
     bool isUnique;
 
 public:
-    Index(bool isUnique = false) : isUnique(isUnique) {}
+    Index(const bool isUnique = false) : isUnique(isUnique) {}
 
     void insert(const Value& val, size_t rowIdx);
     void remove(const Value& val, size_t rowIdx);

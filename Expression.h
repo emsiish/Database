@@ -1,6 +1,8 @@
 #ifndef PROEKT_EXPRESSION_H
 #define PROEKT_EXPRESSION_H
 
+#include <memory>
+#include <utility>
 #include "Table.h"
 
 class Expression {
@@ -15,7 +17,7 @@ class ComparisonExpression : public Expression {
     Value value;
 
 public:
-    ComparisonExpression(std::string& colName, const std::string& op, const Value& value) : colName(colName), op(op), value(value) {}
+    ComparisonExpression(std::string  colName, std::string  op, Value  value) : colName(std::move(colName)), op(std::move(op)), value(std::move(value)) {}
     bool evaluate(const Row& row, const Table& table) const override {
         const int colIndex = table.getColumnIndex(colName);
         if (colIndex == -1) {
