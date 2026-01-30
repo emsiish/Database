@@ -195,7 +195,7 @@ void Database::saveToDisk() const {
 void Database::loadFromDisk() {
     std::ifstream file(dbPath, std::ios::binary);
     if (!file.is_open()) {
-        throw std::invalid_argument("Could not open file for reading");
+        return;
     }
     uint32_t tableCount;
     file.read(reinterpret_cast<char*>(&tableCount), sizeof(tableCount));
@@ -255,6 +255,9 @@ void Database::loadFromDisk() {
     file.close();
 }
 
+Table &Database::getTable(const std::string &tableName) {
+    return tables[tableName];
+}
 
 
 

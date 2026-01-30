@@ -44,12 +44,11 @@ public:
     static Value parseValue(const std::string& str, DataType type) {
         if (type == DataType::INT) {
             return Value(stoi(str));
-        } else {
-            std::string cleaned = str;
-            if (cleaned.front() == '"') cleaned = cleaned.substr(1);
-            if (cleaned.back() == '"') cleaned.pop_back();
-            return Value(cleaned, type);
         }
+        std::string cleaned = str;
+        if (cleaned.front() == '"') cleaned = cleaned.substr(1);
+        if (cleaned.back() == '"') cleaned.pop_back();
+        return Value(cleaned, type);
     }
 
     static std::unique_ptr<Expression> parseWhereClause(const std::vector<std::string>& tokens, size_t& pos, const Table& table) {

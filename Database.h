@@ -27,6 +27,7 @@ public:
     void select(const std::string& tableName, const std::vector<std::string>& columnNames, const std::unique_ptr<Expression>& whereExpression, const std::string& orderByColumn);
     void insert(const std::string& tableName, const std::vector<Row>& rows);
     void remove(const std::string& tableName, std::unique_ptr<Expression> whereExpr);
+    Table& getTable(const std::string& tableName);
 };
 
 #endif //PROEKT_DATABASE_H

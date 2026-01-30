@@ -63,7 +63,7 @@ void processCommand(Database& db, const std::string& command) {
                 }
             }
 
-            db.createTable(tableName, columns);
+        db.createTable(tableName, columns);
 
         } else if (cmd == "DROPTABLE") {
             db.dropTable(tokens[1]);
@@ -115,23 +115,23 @@ void processCommand(Database& db, const std::string& command) {
 
             std::unique_ptr<Expression> whereExpr = nullptr;
             std::string orderByCol;
-
+            Table& table = db.getTable(tableName);
             while (i < tokens.size()) {
                 std::string upper = tokens[i];
                 transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
 
                 if (upper == "WHERE") {
                     i++;
-                    break;
+                    whereExpr = Parser::parseWhereClause(tokens, i, table);
                 } else if (upper == "ORDER") {
-                    i += 3;
+                    i += 2;
                     orderByCol = tokens[i++];
                 } else if (upper == "DISTINCT") {
                     i++;
                 }
             }
 
-            db.select(tableName, colNames, move(whereExpr), orderByCol);
+            db.select(tableName, colNames, std::move(whereExpr), orderByCol);
 
         } else if (cmd == "QUIT" || cmd == "EXIT") {
             std::cout << "Goodbye" << std::endl;
