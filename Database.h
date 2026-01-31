@@ -1,6 +1,7 @@
 #ifndef PROEKT_DATABASE_H
 #define PROEKT_DATABASE_H
 #include <algorithm>
+#include <ranges>
 #include <iostream>
 #include <iomanip>
 #include "Expression.h"
@@ -24,8 +25,8 @@ public:
     void dropTable(const std::string& tableName);
     void listTables() const;
     void tableInfo(const std::string& tableName);
-    void select(const std::string& tableName, const std::vector<std::string>& columnNames, const std::unique_ptr<Expression>& whereExpression, const std::string& orderByColumn);
-    void insert(const std::string& tableName, const std::vector<Row>& rows);
+    void select(const std::string& tableName, const std::vector<std::string>& columnNames, const std::unique_ptr<Expression>& whereExpression, const std::string& orderByColumn, bool isDistinct);
+    void insert(const std::string& tableName, std::vector<Row>& rows);
     void remove(const std::string& tableName, std::unique_ptr<Expression> whereExpr);
     Table& getTable(const std::string& tableName);
 };

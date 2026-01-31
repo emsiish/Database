@@ -21,11 +21,16 @@ int Table::getColumnIndex(const std::string &name) const {
 }
 
 
-void Table::insertRow(const Row &row) {
+void Table::insertRow(Row &row) {
+    for (std::size_t i = 0; i < columns.size(); i++) {
+        if (columns[i].autoIncrement) {
+            row.values[i] = Value(autoIncrementCounters[columns[i].name]++);
+        }
+    }
     rows.push_back(row);
     const std::size_t rowIdx = rows.size() - 1;
 
-    for (std::size_t i = 0; i < rows.size(); i++) {
+    for (std::size_t i = 0; i < columns.size(); i++) {
         if (columns[i].indexed) {
             indices[columns[i].name].insert(row.values[i], rowIdx);
         }
@@ -59,6 +64,17 @@ std::vector<Row> Table::getRows() const {
 
 std::string Table::getName() const {
     return name;
+}
+
+std::size_t Table::getDataSize() const {
+    size_t size = 0;
+    for (const auto& row : rows) {
+        for (const auto& val : row.values) {
+            if (val.type == DataType::INT) size += sizeof(double);
+            else size += val.strValue.size();
+        }
+    }
+    return size;
 }
 
 

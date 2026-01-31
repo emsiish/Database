@@ -15,11 +15,12 @@ public:
     Table(const std::string& name, const std::vector<Column>& columns);
 
     int getColumnIndex(const std::string& name) const;
-    void insertRow(const Row& row);
+    void insertRow(Row& row);
     void removeRow(std::size_t rowIdx);
     std::vector<Column> getColumns() const;
     std::vector<Row> getRows() const;
     std::string getName() const;
+    std::size_t getDataSize() const;
 };
 
 #endif //PROEKT_TABLE_H

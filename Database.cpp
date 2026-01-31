@@ -49,21 +49,23 @@ void Database::tableInfo(const std::string &tableName) {
         if (i < table.getColumns().size() - 1) std::cout << "; ";
     }
     std::cout << ")" << std::endl;
+    std::cout << "Total " << table.getRows().size() << " rows ("
+             << table.getDataSize() / 1024.0 << " KB data) in the table" << std::endl;
 }
 
-void Database::insert(const std::string &tableName, const std::vector<Row> &rows) {
+void Database::insert(const std::string &tableName, std::vector<Row> &rows) {
     if (!tables.contains(tableName)) {
         throw std::runtime_error("Table " + tableName + " does not exists");
     }
     Table &table = tables[tableName];
-    for (const auto &row : rows) {
+    for (auto &row : rows) {
         if (row.values.size() != table.getColumns().size()) {
             throw std::runtime_error("Column size mismatch");
         }
         table.insertRow(row);
     }
     saveToDisk();
-    std::cout << (rows.size() == 1 ? "One row" : std::to_string(rows.size()) + " rows")
+    std::cout << (rows.size() == 1 ? "1 row" : std::to_string(rows.size()) + " rows")
          << " inserted." << std::endl;
 }
 
@@ -83,7 +85,7 @@ void Database::remove(const std::string &tableName, std::unique_ptr<Expression> 
     std::cout << removedRows << " row" << (removedRows == 1 ? "" : "s") << " removed." << std::endl;
 }
 
-void Database::select(const std::string& tableName, const std::vector<std::string>& columnNames, const std::unique_ptr<Expression>& whereExpression, const std::string& orderByColumn) {
+void Database::select(const std::string& tableName, const std::vector<std::string>& columnNames, const std::unique_ptr<Expression>& whereExpression, const std::string& orderByColumn, bool isDistinct) {
     if (!tables.contains(tableName)) {
         throw std::runtime_error("Table " + tableName + " does not exists");
     }
@@ -94,6 +96,12 @@ void Database::select(const std::string& tableName, const std::vector<std::strin
         if (!whereExpression || whereExpression->evaluate(row, table)) {
             results.push_back(row);
         }
+    }
+
+    if (isDistinct) {
+        std::ranges::sort(results); // Сортираме, за да групираме дубликатите
+        auto [last, end] = std::ranges::unique(results);
+        results.erase(last, end); // Премахваме повтарящите се редове
     }
 
     if (!orderByColumn.empty()) {

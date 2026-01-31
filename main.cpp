@@ -45,6 +45,14 @@ void processCommand(Database& db, const std::string& command) {
                 DataType type = Parser::parseDataType(typeStr);
 
                 Column col(colName, type);
+                if (i < tokens.size() && tokens[i] != "," && tokens[i] != ")") {
+                    std::string attr = tokens[i];
+                    transform(attr.begin(), attr.end(), attr.begin(), ::toupper);
+                    if (attr == "AUTOINCREMENT") {
+                        col.autoIncrement = true;
+                        i++;
+                    }
+                }
                 columns.push_back(col);
 
                 if (i < tokens.size() && tokens[i] == ",") i++;
@@ -87,6 +95,8 @@ void processCommand(Database& db, const std::string& command) {
                         if (isNumber(tokens[i])) {
                             row.values.emplace_back(std::stod(tokens[i++]));
                         } else {
+                            tokens[i] = tokens[i].substr(1);
+                            tokens[i].pop_back();
                             row.values.emplace_back(tokens[i++]);
                         }
                     }
@@ -98,8 +108,18 @@ void processCommand(Database& db, const std::string& command) {
             db.insert(tokens[2], rows);
 
         } else if (cmd == "SELECT") {
+            bool isDistinct = false;
             std::vector<std::string> colNames;
             size_t i = 1;
+
+            if (i < tokens.size()) {
+                std::string firstToken = tokens[i];
+                transform(firstToken.begin(), firstToken.end(), firstToken.begin(), ::toupper);
+                if (firstToken == "DISTINCT") {
+                    isDistinct = true;
+                    i++;
+                }
+            }
 
             while (i < tokens.size() && tokens[i] != "FROM") {
                 std::string upper = tokens[i];
@@ -131,7 +151,7 @@ void processCommand(Database& db, const std::string& command) {
                 }
             }
 
-            db.select(tableName, colNames, std::move(whereExpr), orderByCol);
+            db.select(tableName, colNames, std::move(whereExpr), orderByCol, isDistinct);
 
         } else if (cmd == "QUIT" || cmd == "EXIT") {
             std::cout << "Goodbye" << std::endl;

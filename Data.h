@@ -67,6 +67,19 @@ struct Row {
 
     Row() = default;
     Row(const std::vector<Value>& values) : values(values) {}
+
+    bool operator==(const Row& other) const {
+        return values == other.values;
+    }
+
+    bool operator<(const Row& other) const {
+        return values < other.values;
+    }
+
+    bool operator!=(const Row& other) const { return !(*this == other); }
+    bool operator>(const Row& other) const { return other < *this; }
+    bool operator<=(const Row& other) const { return !(other < *this); }
+    bool operator>=(const Row& other) const { return !(*this < other); }
 };
 
 #endif //PROEKT_DATA_H
