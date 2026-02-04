@@ -16,7 +16,7 @@ target_sources(
         Expression.h
         Index.h
         Index.cpp
-        Parser.cpp
+        Parser.h
         Table.h
         Table.cpp
 )

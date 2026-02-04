@@ -4,6 +4,8 @@
 #include <ranges>
 #include <iostream>
 #include <iomanip>
+#include <fstream>
+#include <set>
 #include "Expression.h"
 
 class Database {

@@ -1,6 +1,8 @@
 #ifndef PROEKT_TABLE_H
 #define PROEKT_TABLE_H
 
+#include <cstdint>
+#include <utility>
 #include "Index.h"
 
 class Table {
@@ -11,8 +13,8 @@ class Table {
     std::map<std::string, int> autoIncrementCounters;
 
 public:
-    Table() {}
-    Table(const std::string& name, const std::vector<Column>& columns);
+    Table() = default;
+    Table(std::string  name, const std::vector<Column>& columns);
 
     int getColumnIndex(const std::string& name) const;
     void insertRow(Row& row);
@@ -21,6 +23,8 @@ public:
     std::vector<Row> getRows() const;
     std::string getName() const;
     std::size_t getDataSize() const;
+    std::map<std::string, int> getAutoIncrementCounters() const;
+    void setAutoIncrementCounters(const std::string& colName, const int& value);
 };
 
 #endif //PROEKT_TABLE_H

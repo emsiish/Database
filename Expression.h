@@ -7,7 +7,7 @@
 
 class Expression {
 public:
-    virtual ~Expression() {}
+    virtual ~Expression() = default;
     virtual bool evaluate(const Row& row, const Table& table) const = 0;
 };
 

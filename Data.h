@@ -4,11 +4,11 @@
 #include <utility>
 #include <vector>
 
-enum class DataType { INT, STRING, DATE };
+enum class DataType { DOUBLE, STRING, DATE };
 
 inline std::string dataTypeToString(const DataType type) {
     switch(type) {
-        case DataType::INT: return "Int";
+        case DataType::DOUBLE: return "Double";
         case DataType::STRING: return "String";
         case DataType::DATE: return "Date";
     }
@@ -16,30 +16,39 @@ inline std::string dataTypeToString(const DataType type) {
 }
 
 struct Value {
-    //TODO: convert int to double
     DataType type;
-    double intValue;
+    double numValue;
     std::string strValue;
 
     static constexpr double epsilon = 1e-5;
 
-    Value() : type(DataType::INT), intValue(0) {}
-    Value(const double value) : type(DataType::INT), intValue(value) {}
-    Value(std::string value, const DataType type = DataType::STRING) : type(type), intValue(0), strValue(std::move(value)) {}
+    Value() : type(DataType::DOUBLE), numValue(0) {}
+    Value(const double value) : type(DataType::DOUBLE), numValue(value) {}
+    Value(std::string value, const DataType type = DataType::STRING) : type(type), numValue(0), strValue(std::move(value)) {}
 
     std::string toString() const {
-        if (type == DataType::INT) return std::to_string(intValue);
+        if (type == DataType::DOUBLE) {
+            std::string s = std::to_string(numValue);
+            s.erase(s.find_last_not_of('0') + 1, std::string::npos);
+            if (s.back() == '.') s.pop_back();
+            return s;
+        }
         return "\"" + strValue + "\"";
     }
 
     bool operator==(const Value& other) const {
         if (type != other.type) return false;
-        return (type == DataType::INT) ? std::abs(intValue - other.intValue) < epsilon : (strValue == other.strValue);
+        return (type == DataType::DOUBLE) ? std::abs(numValue - other.numValue) < epsilon : (strValue == other.strValue);
     }
 
     bool operator<(const Value& other) const {
-        if (type != other.type) return false;
-        return (type == DataType::INT) ? (intValue < other.intValue) : (strValue < other.strValue);
+        if (type != other.type) {
+            if (!((type == DataType::STRING || type == DataType::DATE) &&
+                  (other.type == DataType::STRING || other.type == DataType::DATE))) {
+                return false;
+                  }
+        }
+        return (type == DataType::DOUBLE) ? (numValue < other.numValue) : (strValue < other.strValue);
     }
 
     bool operator!=(const Value& other) const { return !(*this == other); }
@@ -57,7 +66,7 @@ struct Column {
     bool indexed;
     bool uniqueIndex;
 
-    Column() : type(DataType::INT), hasDefault(false), autoIncrement(false), indexed(false), uniqueIndex(false) {}
+    Column() : type(DataType::DOUBLE), hasDefault(false), autoIncrement(false), indexed(false), uniqueIndex(false) {}
     Column(std::string  name, const DataType type, const bool indexed = false, const bool uniqueIndex = false)
         : name(std::move(name)), type(type), hasDefault(false), autoIncrement(false), indexed(indexed), uniqueIndex(uniqueIndex) {}
 };

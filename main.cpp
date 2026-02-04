@@ -1,4 +1,4 @@
-#include "Parser.cpp"
+#include "Parser.h"
 #include "Database.h"
 
 void printPrompt() {
@@ -48,6 +48,13 @@ void processCommand(Database& db, const std::string& command) {
                 if (i < tokens.size() && tokens[i] != "," && tokens[i] != ")") {
                     std::string attr = tokens[i];
                     transform(attr.begin(), attr.end(), attr.begin(), ::toupper);
+
+                    if (attr == "DEFAULT") {
+                        i++;
+                        col.hasDefault = true;
+                        col.defaultValue = Parser::parseValue(tokens[i++], col.type);
+                    }
+
                     if (attr == "AUTOINCREMENT") {
                         col.autoIncrement = true;
                         i++;
@@ -92,12 +99,19 @@ void processCommand(Database& db, const std::string& command) {
                     while (tokens[i] != ")") {
                         if (tokens[i] == ",") i++;
 
-                        if (isNumber(tokens[i])) {
-                            row.values.emplace_back(std::stod(tokens[i++]));
+                        const std::string& valToken = tokens[i++];
+                        std::string upperToken = valToken;
+                        transform(upperToken.begin(), upperToken.end(), upperToken.begin(), ::toupper);
+
+                        if (upperToken == "DEFAULT") {
+                            Value defaultMarker;
+                            defaultMarker.strValue = "__INTERNAL_DEFAULT__";
+                            row.values.push_back(defaultMarker);
+                        } else if (isNumber(valToken)) {
+                            row.values.emplace_back(std::stod(valToken));
                         } else {
-                            tokens[i] = tokens[i].substr(1);
-                            tokens[i].pop_back();
-                            row.values.emplace_back(tokens[i++]);
+                            std::string clean = valToken.substr(1, valToken.size() - 2);
+                            row.values.emplace_back(clean);
                         }
                     }
 
@@ -106,6 +120,33 @@ void processCommand(Database& db, const std::string& command) {
                 i++;
             }
             db.insert(tokens[2], rows);
+
+        } else if (cmd == "REMOVE") {
+            size_t i = 1;
+
+            if (i < tokens.size()) {
+                std::string upper = tokens[i];
+                std::ranges::transform(upper, upper.begin(), ::toupper);
+                if (upper == "FROM") i++;
+            }
+
+            if (i >= tokens.size()) throw std::runtime_error("Expected table name after REMOVE");
+            const std::string& tableName = tokens[i++];
+
+            std::unique_ptr<Expression> whereExpr = nullptr;
+            Table& table = db.getTable(tableName);
+
+            if (i < tokens.size()) {
+                std::string upper = tokens[i];
+                std::ranges::transform(upper, upper.begin(), ::toupper);
+
+                if (upper == "WHERE") {
+                    i++;
+                    whereExpr = Parser::parseWhereExpression(tokens, i, table);
+                }
+            }
+
+            db.remove(tableName, std::move(whereExpr));
 
         } else if (cmd == "SELECT") {
             bool isDistinct = false;
@@ -142,7 +183,7 @@ void processCommand(Database& db, const std::string& command) {
 
                 if (upper == "WHERE") {
                     i++;
-                    whereExpr = Parser::parseWhereClause(tokens, i, table);
+                    whereExpr = Parser::parseWhereExpression(tokens, i, table);
                 } else if (upper == "ORDER") {
                     i += 2;
                     orderByCol = tokens[i++];

@@ -3,7 +3,7 @@
 void Index::insert(const Value &val, size_t rowIdx) {
     if (isUnique) {
         if (uniqueIndices.contains(val)) {
-            throw std::logic_error("unique index already exists");
+            throw std::logic_error("Unique index already exists");
         }
         uniqueIndices[val] = rowIdx;
     } else {
@@ -50,6 +50,3 @@ void Index::clear() {
 bool Index::getIsUnique() const {
     return isUnique;
 }
-
-
-
