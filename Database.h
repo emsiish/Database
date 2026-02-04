@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <fstream>
 #include <set>
+#include <sstream>
 #include "Expression.h"
 
 class Database {
