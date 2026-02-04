@@ -37,7 +37,12 @@ struct Value {
     }
 
     bool operator==(const Value& other) const {
-        if (type != other.type) return false;
+        if (type != other.type) {
+            if (!((type == DataType::STRING || type == DataType::DATE) &&
+                  (other.type == DataType::STRING || other.type == DataType::DATE))) {
+                return false;
+                  }
+        }
         return (type == DataType::DOUBLE) ? std::abs(numValue - other.numValue) < epsilon : (strValue == other.strValue);
     }
 

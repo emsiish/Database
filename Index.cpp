@@ -15,7 +15,7 @@ void Index::remove(const Value &val, size_t rowIdx) {
     if (isUnique) {
         uniqueIndices.erase(val);
     } else {
-        auto range = uniqueIndices.equal_range(val);
+        auto range = nonUniqueIndexes.equal_range(val);
         for (auto it = range.first; it != range.second; ++it) {
             if (it->second == rowIdx) {
                 nonUniqueIndexes.erase(it);
@@ -34,7 +34,7 @@ std::vector<size_t> Index::find(const Value &val) const {
             result.push_back(it->second);
         }
     } else {
-        auto range = uniqueIndices.equal_range(val);
+        auto range = nonUniqueIndexes.equal_range(val);
         for (auto it = range.first; it != range.second; ++it) {
             result.push_back(it->second);
         }
